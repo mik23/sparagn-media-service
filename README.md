@@ -5,5 +5,5 @@ Install go1.15.1 darwin/amd64 ( see https://golang.org/doc/install)
 go test ./...
 
 go clean
-go build main.go
+go build app.go
 ./main (or "go run main.go")
