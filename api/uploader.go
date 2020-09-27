@@ -2,35 +2,55 @@ package api
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"google.golang.org/appengine"
 	"net/http"
+	"net/url"
+	"sparagn.com/sparagn-media-service/service"
+	"sparagn.com/sparagn-media-service/util"
 )
 
-//Upload is the function to upload files in cloud
-func Upload(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("File Upload Endpoint Hit")
-
-	// upload of 10 MB files.
-	r.ParseMultipartForm(10 << 20)
-
-	file, handler, err := r.FormFile("file")
+// Upload uploads file to bucket
+func Upload(c *gin.Context) {
+	f, uploadedFile, err := c.Request.FormFile("file")
 	if err != nil {
-		fmt.Fprintf(w, "Error Retrieving the File")
-		fmt.Println(err)
+		util.ShowError(c, err)
 		return
 	}
 
-	defer file.Close()
-	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-	fmt.Printf("File Size: %+v\n", handler.Size)
-	fmt.Printf("MIME Header: %+v\n", handler.Header)
+	defer f.Close()
 
-	// read all of the contents of our uploaded file into a byte array
-	// fileBytes, err := ioutil.ReadAll(file)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
+	fmt.Printf("Uploaded File: %+v\n", uploadedFile.Filename)
+	fmt.Printf("File Size: %+v\n", uploadedFile.Size)
+	fmt.Printf("MIME Header: %+v\n", uploadedFile.Header)
 
-	//TODO develop the service bucket uploader
+	ctx := appengine.NewContext(c.Request)
 
-	fmt.Fprintf(w, "Successfully Uploaded File\n")
+	bucketName := "image-categories"
+	err, writer := service.GetInstanceBucketClient(ctx, uploadedFile, bucketName)
+	if err != nil {
+		util.ShowError(c, err)
+	}
+
+ 	if service.CopyFile(c, writer, f) {
+		return
+	}
+
+	if err := writer.Close(); err != nil {
+		util.ShowError(c, err)
+		return
+	}
+
+	u, err := url.Parse("/" + bucketName + "/" + writer.Attrs().Name)
+	if err != nil {
+		util.ShowError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":  "file uploaded successfully",
+		"pathname": u.EscapedPath(),
+	})
 }
+
+

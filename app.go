@@ -1,18 +1,12 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"sparagn.com/sparagn-media-service/api"
 )
 
-func handleRequests() {
-	http.HandleFunc("/upload", api.Upload)
-	http.HandleFunc("/downloader", api.Downloader)
-	log.Fatal(http.ListenAndServe(":10000", nil))
+func main() {
+	router := api.SetupRouter()
+	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
-func main() {
-	handleRequests()
-}
+

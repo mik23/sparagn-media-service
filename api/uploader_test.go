@@ -2,18 +2,28 @@ package api
 
 import (
 	"bytes"
+	"encoding/json"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strings"
+	"sparagn.com/sparagn-media-service/util/test"
 	"testing"
 )
 
+
 func TestUpload(t *testing.T) {
-	t.Run("Should upload succeffully any file", func(t *testing.T) {
+
+	t.Run("Ping ok", func (t *testing.T){
+		r := SetupRouter()
+		w := test.PerformRequest(r, "GET", "/ping", nil, nil)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("Should upload successfully any file", func(t *testing.T) {
 		path := "./uploader.go"
 		file, err := os.Open(path)
 		if err != nil {
@@ -25,23 +35,20 @@ func TestUpload(t *testing.T) {
 		writer := multipart.NewWriter(body)
 		part, err := writer.CreateFormFile("file", filepath.Base(path))
 		if err != nil {
-			writer.Close()
+			_ = writer.Close()
 			t.Error(err)
 		}
+
 		io.Copy(part, file)
 		writer.Close()
 
-		req := httptest.NewRequest("POST", "/upload", body)
-		req.Header.Set("Content-Type", writer.FormDataContentType())
-		res := httptest.NewRecorder()
-
-		Upload(res, req)
+		r := SetupRouter()
+		headers := map[string] string {"Content-Type": writer.FormDataContentType()}
+		res := test.PerformRequest(r, "POST", "/upload", body, headers)
 
 		if res.Code != http.StatusOK {
 			t.Error("not 200")
 		}
-
-		t.Log(res.Body.String())
 	})
 
 	t.Run("Should not upload if there is a missing file parameter", func(t *testing.T) {
@@ -54,26 +61,29 @@ func TestUpload(t *testing.T) {
 		defer file.Close()
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
-		part, err := writer.CreateFormFile("randomKey", filepath.Base(path))
+		part, err := writer.CreateFormFile("randomParamKey", filepath.Base(path))
 
 		io.Copy(part, file)
 		writer.Close()
 
 		req := httptest.NewRequest("POST", "/upload", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
-		res := httptest.NewRecorder()
 
-		Upload(res, req)
+		r := SetupRouter()
 
-		if res.Code != http.StatusOK {
-			t.Error("not 200")
+		headers := map[string] string {"Content-Type": writer.FormDataContentType()}
+		res := test.PerformRequest(r, "POST", "/upload", body, headers)
+
+		type Response struct {
+			Error bool `json:"error"`
+			Message string `json:"message"`
 		}
 
-		isError := strings.Contains(res.Body.String(), "Error Retrieving the File")
+		var responseErr Response
+		json.Unmarshal(res.Body.Bytes(), &responseErr)
 
-		if isError == false {
-			t.Error("Error not found")
-		}
+		assert.Equal(t, responseErr.Message, "http: no such file")
+		assert.True(t, responseErr.Error)
 
 	})
 }
