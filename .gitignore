@@ -1,3 +1,4 @@
 .ideagit
 .gitsecret/keys/random_seed
 !*.secret
+.idea/
