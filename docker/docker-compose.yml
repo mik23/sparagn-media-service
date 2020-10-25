@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  sparagn-media-service:
+    build:
+      context: ../
+      dockerfile: $PWD/Dockerfile
+    ports:
+      - "8080:80"

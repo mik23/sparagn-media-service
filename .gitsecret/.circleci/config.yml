@@ -1,0 +1,69 @@
+# Java Gradle CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+
+version: 2.1
+
+executors:
+  my-executor:
+    docker:
+      - image: cimg/go:1.15.3
+    working_directory: ~/sparagn-media-service
+    environment:
+      PROJECT_NAME: sparagn-media-service
+      TERM: dumb
+      SSH_USERNAME: sparagn
+
+jobs:
+  build:
+    executor: my-executor
+    steps:
+      - checkout
+      - run:
+          name: decrypting with git-secret
+          command: |
+            sudo apt-get update
+            sudo apt-get install git-secret -y
+            echo -e $GPG_KEY_CI > ./private_key.gpg
+            gpg --import ./private_key.gpg
+            git-secret reveal
+      - run: go clean && go build
+      - store_artifacts:
+          path: $PROJECT_NAME
+          destination: wor
+      - store_artifacts:
+          path: docker/
+      - store_artifacts:
+          path: script/
+      - persist_to_workspace:
+          root: ~/sparagn-media-service
+          paths:
+            - $PROJECT_NAME
+            - docker/*
+            - script/*
+  deployment:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: ~/sparagn-media-service
+      - add_ssh_keys:
+          fingerprints:
+            - "91:f2:c4:fd:79:17:14:8d:0e:43:36:03:6c:64:f4:d6"
+            - "08:e1:d6:c1:0d:1a:63:65:89:35:18:53:25:22:6a:3a"
+      - run: ./script/deploy.sh
+
+workflows:
+  version: 2
+
+  btd:
+    jobs:
+      - build
+      - deployment:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - develop
