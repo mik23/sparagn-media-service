@@ -55,11 +55,12 @@ func Upload(c *gin.Context) {
 }
 
 func Download(c *gin.Context) {
-	fileName := c.Param("fileName")
+	fileName := c.Query("fileName")
 	ctx := appengine.NewContext(c.Request)
 
 	bucketName := "image-categories"
 	reader, err := service.GetInstanceReader(ctx, bucketName, fileName)
+
 	defer reader.Close()
 
 	if err != nil {
@@ -68,5 +69,5 @@ func Download(c *gin.Context) {
 	}
 
 	data := service.ReadFile(c, reader)
-
+	c.Data(200, reader.Attrs.ContentType, data)
 }
