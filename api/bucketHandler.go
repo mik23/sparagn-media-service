@@ -2,10 +2,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"google.golang.org/appengine"
 	"net/http"
 	"net/url"
+
+	"github.com/gin-gonic/gin"
+	"google.golang.org/appengine"
 	"sparagn.com/sparagn-media-service/service"
 	"sparagn.com/sparagn-media-service/util"
 )
@@ -27,12 +28,12 @@ func Upload(c *gin.Context) {
 	ctx := appengine.NewContext(c.Request)
 
 	bucketName := "image-categories"
-	err, writer := service.GetInstanceBucketClient(ctx, uploadedFile, bucketName)
+	err, writer := service.GetInstanceWriter(ctx, uploadedFile, bucketName)
 	if err != nil {
 		util.ShowError(c, err)
 	}
 
- 	if service.CopyFile(c, writer, f) {
+	if service.CopyFile(c, writer, f) {
 		return
 	}
 
@@ -53,4 +54,20 @@ func Upload(c *gin.Context) {
 	})
 }
 
+func Download(c *gin.Context) {
+	fileName := c.Query("fileName")
+	ctx := appengine.NewContext(c.Request)
 
+	bucketName := "image-categories"
+	reader, err := service.GetInstanceReader(ctx, bucketName, fileName)
+
+	defer reader.Close()
+
+	if err != nil {
+		util.ShowError(c, err)
+		return
+	}
+
+	data := service.ReadFile(c, reader)
+	c.Data(200, reader.Attrs.ContentType, data)
+}
