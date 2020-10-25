@@ -2,10 +2,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"google.golang.org/appengine"
 	"net/http"
 	"net/url"
+
+	"github.com/gin-gonic/gin"
+	"google.golang.org/appengine"
 	"sparagn.com/sparagn-media-service/service"
 	"sparagn.com/sparagn-media-service/util"
 )
@@ -27,12 +28,12 @@ func Upload(c *gin.Context) {
 	ctx := appengine.NewContext(c.Request)
 
 	bucketName := "image-categories"
-	err, writer := service.GetInstanceBucketClient(ctx, uploadedFile, bucketName)
+	err, writer := service.GetInstanceWriter(ctx, uploadedFile, bucketName)
 	if err != nil {
 		util.ShowError(c, err)
 	}
 
- 	if service.CopyFile(c, writer, f) {
+	if service.CopyFile(c, writer, f) {
 		return
 	}
 
@@ -53,4 +54,22 @@ func Upload(c *gin.Context) {
 	})
 }
 
+func Download() {
+	// 	if err != nil {
+	// 		d.errorf("readFile: unable to open file from bucket %q, file %q: %v", d.bucketName, fileName, err)
+	// 		return
+	// }
+	// defer rc.Close()
+	// slurp, err := ioutil.ReadAll(rc)
+	// if err != nil {
+	// 		d.errorf("readFile: unable to read data from bucket %q, file %q: %v", d.bucketName, fileName, err)
+	// 		return
+	// }
 
+	// fmt.Fprintf(d.w, "%s\n", bytes.SplitN(slurp, []byte("\n"), 2)[0])
+	// if len(slurp) > 1024 {
+	// 		fmt.Fprintf(d.w, "...%s\n", slurp[len(slurp)-1024:])
+	// } else {
+	// 		fmt.Fprintf(d.w, "%s\n", slurp)
+	// }
+}
