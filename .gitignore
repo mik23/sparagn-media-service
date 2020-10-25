@@ -1,2 +1,4 @@
 .idea
 resources/*
+.gitsecret/keys/random_seed
+!*.secret
