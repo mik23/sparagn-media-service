@@ -54,22 +54,19 @@ func Upload(c *gin.Context) {
 	})
 }
 
-func Download() {
-	// 	if err != nil {
-	// 		d.errorf("readFile: unable to open file from bucket %q, file %q: %v", d.bucketName, fileName, err)
-	// 		return
-	// }
-	// defer rc.Close()
-	// slurp, err := ioutil.ReadAll(rc)
-	// if err != nil {
-	// 		d.errorf("readFile: unable to read data from bucket %q, file %q: %v", d.bucketName, fileName, err)
-	// 		return
-	// }
+func Download(c *gin.Context) {
+	fileName := c.Param("fileName")
+	ctx := appengine.NewContext(c.Request)
 
-	// fmt.Fprintf(d.w, "%s\n", bytes.SplitN(slurp, []byte("\n"), 2)[0])
-	// if len(slurp) > 1024 {
-	// 		fmt.Fprintf(d.w, "...%s\n", slurp[len(slurp)-1024:])
-	// } else {
-	// 		fmt.Fprintf(d.w, "%s\n", slurp)
-	// }
+	bucketName := "image-categories"
+	reader, err := service.GetInstanceReader(ctx, bucketName, fileName)
+	defer reader.Close()
+
+	if err != nil {
+		util.ShowError(c, err)
+		return
+	}
+
+	data := service.ReadFile(c, reader)
+
 }

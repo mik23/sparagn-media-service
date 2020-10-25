@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 
 	"cloud.google.com/go/storage"
@@ -19,19 +20,29 @@ func CopyFile(c *gin.Context, sw *storage.Writer, file multipart.File) bool {
 	return false
 }
 
-func GetInstanceBucketClient(ctx context.Context) (error, *storage.Client) {
+func ReadFile(c *gin.Context, rc *storage.Reader) []byte {
+	data, err := ioutil.ReadAll(rc)
+	if err != nil {
+		util.ShowError(c, err)
+	}
+	return data
+}
+
+func GetInstanceBucketClient(ctx context.Context) (*storage.Client, error) {
 	path := util.RootDir() + "/resources/GCP/credentials/google.json"
-	storageClient, err := storage.NewClient(ctx, option.WithCredentialsFile(path))
+	return storage.NewClient(ctx, option.WithCredentialsFile(path))
 }
 
 func GetInstanceWriter(ctx context.Context, uploadedFile *multipart.FileHeader, bucketName string) (error, *storage.Writer) {
-	storageClient, err := GetInstanceBucketClient(ctx)
-	writer := storageClient.Bucket(bucketName).Object(uploadedFile.Filename).NewWriter(ctx)
-	return err, writer
+	storageClient, error := GetInstanceBucketClient(ctx)
+	return error, storageClient.Bucket(bucketName).Object(uploadedFile.Filename).NewWriter(ctx)
 }
 
-func GetInstanceReader(ctx context.Context, bucketName string, filename string) (error, *storage.Reader) {
-	storageClient, err := GetInstanceBucketClient(ctx)
-	reader := storageClient.Bucket(bucketName).Object(fileName).NewReader(ctx)
-	return err, reader
+func GetInstanceReader(ctx context.Context, bucketName string, fileName string) (*storage.Reader, error) {
+	storageClient, error := GetInstanceBucketClient(ctx)
+	if error != nil {
+		return nil, error
+	}
+
+	return storageClient.Bucket(bucketName).Object(fileName).NewReader(ctx)
 }
