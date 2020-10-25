@@ -15,7 +15,7 @@ fi
 source docker/.env.${CIRCLE_BRANCH}
 
 #zip folder to deploy including the service artifact, bash scripts and docker-compose
-zip -r $PROJECT_NAME script docker ssl target/$PROJECT_NAME.jar
+zip -r $PROJECT_NAME .
 
 #send the zip to the server
 scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $PROJECT_NAME.zip $SSH_USERNAME@$IP:/home/sparagn
