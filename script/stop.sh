@@ -1,8 +1,7 @@
 #!/bin/bash
 
 PROJECT_NAME=sparagn-media-service
-arrIN=(${PWD//$PROJECT_NAME/ })
-rootPath=$arrIN$PROJECT_NAME
+rootPath=$PROJECT_NAME
 cd $rootPath
 
 echo "Stopping services... please be patient!"
