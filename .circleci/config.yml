@@ -24,29 +24,29 @@ jobs:
             gpg --import ./private_key.gpg
             git-secret reveal
       - run: go clean && go build
-#      - store_artifacts:
-#          path: $PROJECT_NAME
-#          destination: wor
-##      - store_artifacts:
-##          path: docker/
-#      - store_artifacts:
-#          path: .
-#      - persist_to_workspace:
-#          root: ~/sparagn-media-service
-#          paths:
-#            - $PROJECT_NAME
-#            - docker/*
-#            - script/*
-#  deployment:
-#    executor: my-executor
-#    steps:
-#      - attach_workspace:
-#          at: ~/sparagn-media-service
-#      - add_ssh_keys:
-#          fingerprints:
-#            - "91:f2:c4:fd:79:17:14:8d:0e:43:36:03:6c:64:f4:d6"
-#            - "08:e1:d6:c1:0d:1a:63:65:89:35:18:53:25:22:6a:3a"
-#      - run: ./script/deploy.sh
+      - store_artifacts:
+          path: $PROJECT_NAME
+          destination: wor
+      - store_artifacts:
+          path: docker/
+      - store_artifacts:
+          path: .
+      - persist_to_workspace:
+          root: ~/sparagn-media-service
+          paths:
+            - $PROJECT_NAME
+            - docker/*
+            - script/*
+  deployment:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: ~/sparagn-media-service
+      - add_ssh_keys:
+          fingerprints:
+            - "91:f2:c4:fd:79:17:14:8d:0e:43:36:03:6c:64:f4:d6"
+            - "08:e1:d6:c1:0d:1a:63:65:89:35:18:53:25:22:6a:3a"
+      - run: ./script/deploy.sh
 
 workflows:
   version: 2
@@ -54,11 +54,12 @@ workflows:
   btd:
     jobs:
       - build
-#      - deployment:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only:
-#                - master
-#                - develop
+      - deployment:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+                - test
