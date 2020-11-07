@@ -31,6 +31,8 @@ jobs:
           path: docker/
       - store_artifacts:
           path: .
+      - store_artifacts:
+          path: script/
       - persist_to_workspace:
           root: ~/sparagn-media-service
           paths:

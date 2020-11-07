@@ -5,7 +5,7 @@
 
 #IP=35.230.96.96
 #SSH_USERNAME=sparagn
-#PROJECT_NAME=sparagn-rest-service
+#PROJECT_NAME=sparagn-media-service
 
 if [ -z "${CIRCLE_BRANCH}" ]
 then
