@@ -39,6 +39,7 @@ jobs:
             - $PROJECT_NAME
             - docker/*
             - script/*
+            - resources/*
   deployment:
     executor: my-executor
     steps:
