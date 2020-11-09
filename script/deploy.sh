@@ -12,7 +12,6 @@ then
   export CIRCLE_BRANCH=develop
 fi
 
-CIRCLE_BRANCH=develop
 source docker/.env.${CIRCLE_BRANCH}
 
 #zip folder to deploy including the service artifact, bash scripts and docker-compose

@@ -67,4 +67,3 @@ workflows:
               only:
                 - master
                 - develop
-                - test
