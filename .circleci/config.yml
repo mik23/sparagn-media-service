@@ -30,6 +30,8 @@ jobs:
       - store_artifacts:
           path: docker/
       - store_artifacts:
+          path: resources/
+      - store_artifacts:
           path: .
       - store_artifacts:
           path: script/
