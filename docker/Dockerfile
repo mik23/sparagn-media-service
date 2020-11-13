@@ -1,0 +1,10 @@
+FROM golang:1.14.3-alpine
+WORKDIR /
+ENV CGO_ENABLED=0
+COPY . /
+ARG TARGETOS
+ARG TARGETARCH
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build
+
+EXPOSE 8080
+CMD ["./sparagn-media-service"]

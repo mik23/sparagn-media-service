@@ -1,2 +1,6 @@
-.idea
-resources/*
+.ideagit
+.gitsecret/keys/random_seed
+!*.secret
+.idea/
+resources/GCP/credentials/google.json
+docker/.env.develop
