@@ -4,3 +4,4 @@
 .idea/
 resources/GCP/credentials/google.json
 docker/.env.develop
+docker/.env.master
