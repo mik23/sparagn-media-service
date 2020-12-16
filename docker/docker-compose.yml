@@ -7,3 +7,12 @@ services:
       dockerfile: $PWD/Dockerfile
     ports:
       - "8080:8080"
+
+  # minio1:
+  #   image: minio/minio
+  #   expose:
+  #     - "9000"
+  #   environment:
+  #     MINIO_ACCESS_KEY: minio
+  #     MINIO_SECRET_KEY: minio123
+  #   command: server http://minio1/data
