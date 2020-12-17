@@ -8,11 +8,18 @@ services:
     ports:
       - "8080:8080"
 
-  # minio1:
-  #   image: minio/minio
-  #   expose:
-  #     - "9000"
-  #   environment:
-  #     MINIO_ACCESS_KEY: minio
-  #     MINIO_SECRET_KEY: minio123
-  #   command: server http://minio1/data
+  minio1:
+    image: minio/minio
+    volumes:
+      - data1-1:/data
+    expose:
+      - "9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server /data
+
+## By default this config uses default local driver,
+## For custom volumes replace with volume driver configuration.
+volumes:
+  data1-1:

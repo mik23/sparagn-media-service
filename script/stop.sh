@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT_NAME=sparagn-rest-service
+PROJECT_NAME=sparagn-media-service
 arrIN=(${PWD//$PROJECT_NAME/ })
 rootPath=$arrIN$PROJECT_NAME
 cd $rootPath
