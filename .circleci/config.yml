@@ -2,12 +2,13 @@ version: 2.1
 executors:
   my-executor:
     docker:
-      - image: 'cimg/go:1.15.3'
+    - image: cimg/go:1.15.3
     working_directory: ~/sparagn-media-service
     environment:
       PROJECT_NAME: sparagn-media-service
       TERM: dumb
       SSH_USERNAME: sparagn
+
 jobs:
   build:
     executor: my-executor
@@ -35,11 +36,12 @@ jobs:
             - $PROJECT_NAME
             - docker/*
             - script/*
+  
   deployment:
     executor: my-executor
     steps:
-      - attach_workspace: null
-        at: ~/sparagn-media-service
+      - attach_workspace:
+          at: ~/sparagn-media-service
       - add_ssh_keys:
           fingerprints:
             - '91:f2:c4:fd:79:17:14:8d:0e:43:36:03:6c:64:f4:d6'
@@ -50,12 +52,12 @@ workflows:
   btd:
     jobs:
       - build
-      - deployment: null
-        requires:
-          - build
-        filters:
-          branches:
-            only:
-              - master
-              - develop
-              - test
+      - deployment:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+                - test
