@@ -7,7 +7,7 @@
 # SSH_USERNAME=sparagn
 # PROJECT_NAME=sparagn-media-service
 
-if [ -z "${CIRCLE_BRANCH}" ]
+if [[ -z $CIRCLE_BRANCH ]] || [[  $CIRCLE_BRANCH != "develop" &&  $CIRCLE_BRANCH != "master" ]];
 then
   export CIRCLE_BRANCH=develop
 fi
