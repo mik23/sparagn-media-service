@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -28,46 +29,38 @@ func Upload(c *gin.Context) {
 	ctx := appengine.NewContext(c.Request)
 
 	bucketName := "image-categories"
-	err, writer := service.GetInstanceWriter(ctx, uploadedFile, bucketName)
-	if err != nil {
-		util.ShowError(c, err)
-	}
 
-	if service.CopyFile(c, writer, f) {
-		return
-	}
-
-	if err := writer.Close(); err != nil {
-		util.ShowError(c, err)
-		return
-	}
+	written, err := GetBucketFactory(service.Google).put(ctx, bucketName, uploadedFile, f)
 
 	u, err := url.Parse("/" + bucketName + "/" + writer.Attrs().Name)
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
-
+f
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "file uploaded successfully",
 		"pathname": u.EscapedPath(),
 	})
 }
 
+//Download saves the content
 func Download(c *gin.Context) {
 	fileName := c.Query("fileName")
 	ctx := appengine.NewContext(c.Request)
 
 	bucketName := "image-categories"
-	reader, err := service.GetInstanceReader(ctx, bucketName, fileName)
+	object, error := GetBucketFactory(service.Google).get(fileName, bucketName)
 
-	defer reader.Close()
+	if err == nil {
+		return ioutil.ReadAll(object)
+	}
+	defer object.Close()
 
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
 
-	data := service.ReadFile(c, reader)
-	c.Data(200, reader.Attrs.ContentType, data)
+	c.Data(200, object.contentType, data)
 }
