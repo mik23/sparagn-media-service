@@ -26,18 +26,17 @@ func Upload(c *gin.Context) {
 	fmt.Printf("File Size: %+v\n", uploadedFile.Size)
 	fmt.Printf("MIME Header: %+v\n", uploadedFile.Header)
 
+	bucketName := "bucket-categ"
+
 	ctx := appengine.NewContext(c.Request)
 
-	bucketName := "image-categories"
-
-	written, err := GetBucketFactory(service.Google).put(ctx, bucketName, uploadedFile, f)
-
-	u, err := url.Parse("/" + bucketName + "/" + writer.Attrs().Name)
+	_, err = service.GetBucketFactory(ctx, service.Google).Put(uploadedFile, bucketName, f)
+	u, err := url.Parse("/" + bucketName + "/" + uploadedFile.Filename)
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
-f
+
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "file uploaded successfully",
 		"pathname": u.EscapedPath(),
@@ -47,20 +46,19 @@ f
 //Download saves the content
 func Download(c *gin.Context) {
 	fileName := c.Query("fileName")
-	ctx := appengine.NewContext(c.Request)
 
-	bucketName := "image-categories"
-	object, error := GetBucketFactory(service.Google).get(fileName, bucketName)
+	bucketName := "bucket-categ"
+	object, err := service.GetBucketFactory(c, service.Google).Get(fileName, bucketName)
 
+	var bytes []byte = nil
 	if err == nil {
-		return ioutil.ReadAll(object)
+		bytes, _ = ioutil.ReadAll(object)
 	}
-	defer object.Close()
 
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
 
-	c.Data(200, object.contentType, data)
+	c.Data(200, http.DetectContentType(bytes), bytes)
 }

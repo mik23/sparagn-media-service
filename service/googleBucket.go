@@ -1,17 +1,17 @@
 package service
 
 import (
+	"context"
 	"io"
 	"mime/multipart"
 
 	"cloud.google.com/go/storage"
-	"github.com/gin-gonic/gin"
 	"google.golang.org/api/option"
 	"sparagn.com/sparagn-media-service/util"
 )
 
 type googleBucket struct {
-	context *gin.Context
+	context context.Context
 }
 
 func (bucket *googleBucket) getInstanceBucketClient() (*storage.Client, error) {
@@ -19,12 +19,13 @@ func (bucket *googleBucket) getInstanceBucketClient() (*storage.Client, error) {
 	return storage.NewClient(bucket.context, option.WithCredentialsFile(path))
 }
 
-func (bucket *googleBucket) get(objectName string, bucketName string) (io.Reader, error) {
+func (bucket *googleBucket) Get(objectName string, bucketName string) (io.Reader, error) {
 	return bucket.getInstanceReader(objectName, bucketName)
 }
 
-func (bucket *googleBucket) put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (written int64, err error) {
+func (bucket *googleBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (int64, error) {
 	writer, err := bucket.getInstanceWriter(uploadedFile, bucketName)
+	defer writer.Close()
 
 	if err == nil {
 		return io.Copy(writer, file)

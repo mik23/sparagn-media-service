@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/minio/minio-go/v7 v7.0.6
 	github.com/stretchr/testify v1.6.1
+	golang.org/x/net v0.0.0-20200904194848-62affa334b73
 	golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c // indirect
 	golang.org/x/tools v0.0.0-20200925191224-5d1fdd8fa346 // indirect
 	google.golang.org/api v0.32.0

@@ -26,7 +26,7 @@ func TestUpload(t *testing.T) {
 	t.Run("Should upload and download successfully any file", func(t *testing.T) {
 
 		//Upload
-		fileName := "router.go"
+		fileName := "ping.go"
 		file, err := os.Open(fileName)
 		if err != nil {
 			t.Error(err)
@@ -52,7 +52,7 @@ func TestUpload(t *testing.T) {
 			t.Error("not 200")
 		}
 
-		//Download
+		// Download
 		res = test.PerformRequest(r, "GET", "/download?fileName="+fileName, body, headers)
 
 		if res.Code != http.StatusOK {

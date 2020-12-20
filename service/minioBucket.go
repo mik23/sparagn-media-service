@@ -5,17 +5,16 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"sparagn.com/sparagn-media-service/util"
 )
 
 type minioBucket struct {
-	context *gin.Context
+	context context.Context
 }
 
-func (bucket *minioBucket) get(objectName string, bucketName string) (io.Reader, error) {
+func (bucket *minioBucket) Get(objectName string, bucketName string) (io.Reader, error) {
 	minioClient, err := GetMinioInstance()
 	if err == nil {
 		return nil, err
@@ -23,7 +22,7 @@ func (bucket *minioBucket) get(objectName string, bucketName string) (io.Reader,
 	return minioClient.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
 }
 
-func (bucket *minioBucket) put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (int64, error) {
+func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (int64, error) {
 	minioClient, err := GetMinioInstance()
 	if err == nil {
 		contentType, err := util.GetFileContentType(file)
