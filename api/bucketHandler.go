@@ -7,7 +7,6 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/appengine"
 	"sparagn.com/sparagn-media-service/service"
 	"sparagn.com/sparagn-media-service/util"
 )
@@ -28,14 +27,14 @@ func Upload(c *gin.Context) {
 
 	bucketName := "bucket-categ"
 
-	ctx := appengine.NewContext(c.Request)
+	_, err = service.GetBucketFactory(c, service.Minio).Put(uploadedFile, bucketName, f)
 
-	_, err = service.GetBucketFactory(ctx, service.Google).Put(uploadedFile, bucketName, f)
-	u, err := url.Parse("/" + bucketName + "/" + uploadedFile.Filename)
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
+
+	u, _ := url.Parse("/" + bucketName + "/" + uploadedFile.Filename)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "file uploaded successfully",
@@ -48,11 +47,14 @@ func Download(c *gin.Context) {
 	fileName := c.Query("fileName")
 
 	bucketName := "bucket-categ"
-	object, err := service.GetBucketFactory(c, service.Google).Get(fileName, bucketName)
+	object, err := service.GetBucketFactory(c, service.Minio).Get(fileName, bucketName)
 
 	var bytes []byte = nil
 	if err == nil {
-		bytes, _ = ioutil.ReadAll(object)
+		bytes, err = ioutil.ReadAll(object)
+		if err != nil {
+			c.Data(404, "application/json", nil)
+		}
 	}
 
 	if err != nil {

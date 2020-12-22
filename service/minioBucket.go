@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"mime/multipart"
+	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -16,7 +17,7 @@ type minioBucket struct {
 
 func (bucket *minioBucket) Get(objectName string, bucketName string) (io.Reader, error) {
 	minioClient, err := GetMinioInstance()
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 	return minioClient.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
@@ -26,7 +27,7 @@ func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName st
 	minioClient, err := GetMinioInstance()
 	if err == nil {
 		contentType, err := util.GetFileContentType(file)
-		info, err := minioClient.PutObject(bucket.context, bucketName, uploadedFile.Filename, file, uploadedFile.Size, minio.PutObjectOptions{ContentType: contentType})
+		info, err := minioClient.PutObject(bucket.context, bucketName, uploadedFile.Filename, file, -1, minio.PutObjectOptions{ContentType: contentType})
 		return info.Size, err
 	}
 
@@ -36,9 +37,9 @@ func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName st
 
 // GetMinioInstance builds a mino instance
 func GetMinioInstance() (*minio.Client, error) {
-	endpoint := "localhost:9000" //"play.min.io"
-	accessKeyID := "Q3AM3UQ867SPQQA43P2F"
-	secretAccessKey := "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+	endpoint := os.Getenv("MINIO_ENDPOINT") //"play.min.io"
+	accessKeyID := os.Getenv("MINIO_ACCESS_KEY")
+	secretAccessKey := os.Getenv("MINIO_SECRET_KEY")
 	useSSL := false
 
 	// Initialize minio client object.
