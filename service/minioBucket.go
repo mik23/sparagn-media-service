@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"sparagn.com/sparagn-media-service/util"
 )
 
 type minioBucket struct {
@@ -23,11 +23,18 @@ func (bucket *minioBucket) Get(objectName string, bucketName string) (io.Reader,
 	return minioClient.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
 }
 
-func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (int64, error) {
+func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File, stream bool) (int64, error) {
 	minioClient, err := GetMinioInstance()
 	if err == nil {
-		contentType, err := util.GetFileContentType(file)
-		info, err := minioClient.PutObject(bucket.context, bucketName, uploadedFile.Filename, file, -1, minio.PutObjectOptions{ContentType: contentType})
+		contentType := uploadedFile.Header["Content-Type"][0]
+
+		var size int64 = -1 //stream
+		if stream == false {
+			size, _ := file.Seek(0, 0)
+			fmt.Println("Size Put", size)
+		}
+
+		info, err := minioClient.PutObject(bucket.context, bucketName, uploadedFile.Filename, file, size, minio.PutObjectOptions{ContentType: contentType})
 		return info.Size, err
 	}
 
@@ -35,7 +42,7 @@ func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName st
 
 }
 
-// GetMinioInstance builds a mino instance
+// GetMinioInstance builds a minio instance
 func GetMinioInstance() (*minio.Client, error) {
 	endpoint := os.Getenv("MINIO_ENDPOINT") //"play.min.io"
 	accessKeyID := os.Getenv("MINIO_ACCESS_KEY")

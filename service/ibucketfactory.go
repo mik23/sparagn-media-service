@@ -9,7 +9,7 @@ import (
 //IBucketFactory inteface for the factory
 type IBucketFactory interface {
 	Get(objectName string, bucketName string) (io.Reader, error)
-	Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (int64, error)
+	Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File, stream bool) (int64, error)
 }
 
 //BucketType declaration

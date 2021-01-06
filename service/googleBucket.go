@@ -23,7 +23,7 @@ func (bucket *googleBucket) Get(objectName string, bucketName string) (io.Reader
 	return bucket.getInstanceReader(objectName, bucketName)
 }
 
-func (bucket *googleBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File) (int64, error) {
+func (bucket *googleBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File, stream bool) (int64, error) {
 	writer, err := bucket.getInstanceWriter(uploadedFile, bucketName)
 	defer writer.Close()
 

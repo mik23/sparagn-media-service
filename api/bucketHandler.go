@@ -27,7 +27,7 @@ func Upload(c *gin.Context) {
 
 	bucketName := "bucket-categ"
 
-	_, err = service.GetBucketFactory(c, service.Minio).Put(uploadedFile, bucketName, f)
+	_, err = service.GetBucketFactory(c, service.Minio).Put(uploadedFile, bucketName, f, false)
 
 	if err != nil {
 		util.ShowError(c, err)
