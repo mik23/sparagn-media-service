@@ -3,3 +3,4 @@
 !*.secret
 .idea/
 resources/GCP/credentials/google.json
+docker/.env.develop

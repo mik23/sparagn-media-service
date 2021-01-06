@@ -2,11 +2,11 @@ package api
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/appengine"
 	"sparagn.com/sparagn-media-service/service"
 	"sparagn.com/sparagn-media-service/util"
 )
@@ -25,28 +25,16 @@ func Upload(c *gin.Context) {
 	fmt.Printf("File Size: %+v\n", uploadedFile.Size)
 	fmt.Printf("MIME Header: %+v\n", uploadedFile.Header)
 
-	ctx := appengine.NewContext(c.Request)
+	bucketName := "bucket-categ"
 
-	bucketName := "image-categories"
-	err, writer := service.GetInstanceWriter(ctx, uploadedFile, bucketName)
-	if err != nil {
-		util.ShowError(c, err)
-	}
+	_, err = service.GetBucketFactory(c, service.Minio).Put(uploadedFile, bucketName, f, false)
 
-	if service.CopyFile(c, writer, f) {
-		return
-	}
-
-	if err := writer.Close(); err != nil {
-		util.ShowError(c, err)
-		return
-	}
-
-	u, err := url.Parse("/" + bucketName + "/" + writer.Attrs().Name)
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
+
+	u, _ := url.Parse("/" + bucketName + "/" + uploadedFile.Filename)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "file uploaded successfully",
@@ -54,20 +42,25 @@ func Upload(c *gin.Context) {
 	})
 }
 
+//Download saves the content
 func Download(c *gin.Context) {
 	fileName := c.Query("fileName")
-	ctx := appengine.NewContext(c.Request)
 
-	bucketName := "image-categories"
-	reader, err := service.GetInstanceReader(ctx, bucketName, fileName)
+	bucketName := "bucket-categ"
+	object, err := service.GetBucketFactory(c, service.Minio).Get(fileName, bucketName)
 
-	defer reader.Close()
+	var bytes []byte = nil
+	if err == nil {
+		bytes, err = ioutil.ReadAll(object)
+		if err != nil {
+			c.Data(404, "application/json", nil)
+		}
+	}
 
 	if err != nil {
 		util.ShowError(c, err)
 		return
 	}
 
-	data := service.ReadFile(c, reader)
-	c.Data(200, reader.Attrs.ContentType, data)
+	c.Data(200, http.DetectContentType(bytes), bytes)
 }
