@@ -36,6 +36,9 @@ jobs:
             - $PROJECT_NAME
             - docker/*
             - script/*
+            - api/*
+            - service/*
+            - util/*
   
   deployment:
     executor: my-executor
