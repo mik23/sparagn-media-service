@@ -4,7 +4,7 @@ ENV CGO_ENABLED=0
 COPY . /app
 ARG TARGETOS
 ARG TARGETARCH
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build app.go
 
 EXPOSE 8080
-CMD ["./sparagn-media-service"]
+CMD ["./app"]
