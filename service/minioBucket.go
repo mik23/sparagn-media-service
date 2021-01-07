@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"os"
@@ -26,15 +25,23 @@ func (bucket *minioBucket) Get(objectName string, bucketName string) (io.Reader,
 func (bucket *minioBucket) Put(uploadedFile *multipart.FileHeader, bucketName string, file multipart.File, stream bool) (int64, error) {
 	minioClient, err := GetMinioInstance()
 	if err == nil {
+		userMetaData := map[string]string{"x-amz-acl": "public-read"}
 		contentType := uploadedFile.Header["Content-Type"][0]
+
+		opts := minio.PutObjectOptions{
+			ContentType:  contentType,
+			UserMetadata: userMetaData,
+		}
 
 		var size int64 = -1 //stream
 		if stream == false {
-			size, _ := file.Seek(0, 0)
-			fmt.Println("Size Put", size)
+			// Get length of multipart form
+			size, _ = file.Seek(0, 2)
+			_, _ = file.Seek(0, 0)
+
 		}
 
-		info, err := minioClient.PutObject(bucket.context, bucketName, uploadedFile.Filename, file, size, minio.PutObjectOptions{ContentType: contentType})
+		info, err := minioClient.PutObject(bucket.context, bucketName, uploadedFile.Filename, file, size, opts)
 		return info.Size, err
 	}
 
