@@ -24,21 +24,17 @@ jobs:
             git-secret reveal
       - run: go clean && go build
       - store_artifacts:
-          path: $PROJECT_NAME
-          destination: wor
-      - store_artifacts:
-          path: docker/
-      - store_artifacts:
           path: .
       - persist_to_workspace:
           root: ~/sparagn-media-service
           paths:
-            - $PROJECT_NAME
             - docker/*
             - script/*
             - api/*
             - service/*
-            - util/*
+            - app.go
+            - go.mod
+            - go.sum
   
   deployment:
     executor: my-executor

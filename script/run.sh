@@ -14,6 +14,7 @@ fi
 
 echo 'Bringing docker up... pls wait'
 
-docker-compose $optionalDebugString build >> /dev/null
-docker-compose $optionalDebugString up -d
+docker-compose $optionalDebugString build
+# >> /dev/null
+docker-compose $optionalDebugString up # -d
 echo "All Deployment process done!"
