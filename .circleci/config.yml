@@ -55,4 +55,3 @@ workflows:
               only:
                 - master
                 - develop
-                - feat/46-fix-deploy
