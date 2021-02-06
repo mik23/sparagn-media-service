@@ -4,10 +4,6 @@ executors:
     docker:
     - image: cimg/go:1.15.3
     working_directory: ~/sparagn-media-service
-    environment:
-      TERM: dumb
-      SSH_USERNAME: $SSH_USERNAME
-      SSH_PORT: $SSH_PORT
 
 jobs:
   build:
