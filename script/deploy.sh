@@ -5,7 +5,7 @@
 
 # IP=93.38.115.75
 # SSH_USERNAME=sparagn
-# PROJECT_NAME=sparagn-media-service
+# CIRCLE_PROJECT_REPONAME=sparagn-media-service
 
 if [[ -z $CIRCLE_BRANCH ]] || [[  $CIRCLE_BRANCH != "develop" &&  $CIRCLE_BRANCH != "master" ]];
 then
@@ -15,21 +15,21 @@ fi
 source docker/.env.${CIRCLE_BRANCH}
 
 #zip folder to deploy including the service artifact, bash scripts and docker-compose
-zip -r $PROJECT_NAME .
+zip -r $CIRCLE_PROJECT_REPONAME .
 
 #send the zip to the server
-scp -P $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $PROJECT_NAME.zip $SSH_USERNAME@$IP:/home/sparagn
+scp -P $SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $CIRCLE_PROJECT_REPONAME.zip $SSH_USERNAME@$IP:/home/sparagn
 
 echo sparagn | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$IP bash -c "'
   export CIRCLE_BRANCH=${CIRCLE_BRANCH}
-  if [ -d $PROJECT_NAME ]
+  if [ -d $CIRCLE_PROJECT_REPONAME ]
   then
-    cd $PROJECT_NAME
+    cd $CIRCLE_PROJECT_REPONAME
     ./script/stop.sh
     cd ..
   fi
 
- unzip -o $PROJECT_NAME.zip -d $PROJECT_NAME
- cd $PROJECT_NAME
+ unzip -o $CIRCLE_PROJECT_REPONAME.zip -d $CIRCLE_PROJECT_REPONAME
+ cd $CIRCLE_PROJECT_REPONAME
  ./script/run.sh
 '"
