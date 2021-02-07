@@ -4,10 +4,6 @@ executors:
     docker:
     - image: cimg/go:1.15.3
     working_directory: ~/sparagn-media-service
-    environment:
-      PROJECT_NAME: sparagn-media-service
-      TERM: dumb
-      SSH_USERNAME: sparagn
 
 jobs:
   build:
@@ -59,4 +55,3 @@ workflows:
               only:
                 - master
                 - develop
-                - test
